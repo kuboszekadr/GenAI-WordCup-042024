@@ -25,20 +25,14 @@ class XGBoostErrorPredictionModel(BaseTool):
 
     def _run(
             self,
-            voltage: float,
-            rotate: float,
-            pressure: float,
-            vibration: float,
+            # TODO: what are the input should be?
             run_manager: Optional[CallbackManagerForToolRun] = None
     ) -> str:
         """Use the tool."""
         raise NotImplementedError("Use Only Async Run")
 
     async def _arun(self,
-                    voltage: float,
-                    rotate: float,
-                    pressure: float,
-                    vibration: float,
+                    # TODO: what are the input should be?
                     run_manager: Optional[AsyncCallbackManagerForToolRun] = None) -> str:
         pass
 
