@@ -1,11 +1,10 @@
 from pathlib import Path
-import enum
 
 
 # -----------------
 # PATHS SECTION
 # -----------------
-ROOT_PATH = Path(__file__).parent
+ROOT_PATH = Path(__file__).parent.parent
 DATASET_PATH = ROOT_PATH / "dataset" / "Azure Predictive Maintenance"
 
 ERROR_DATA_PATH = DATASET_PATH / "errors.csv"
@@ -27,5 +26,5 @@ TABLES = [
     MACHINES_DATA_PATH,
     MAINTENANCE_DATA_PATH
 ]
-SENSORS_FIELDS = ['volt', 'temperature', 'pressure', 'vibration']  # sensor columns to process
+SENSORS_FIELDS = ['volt', 'rotate', 'pressure', 'vibration']  # sensor columns to process
 

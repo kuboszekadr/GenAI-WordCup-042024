@@ -16,7 +16,7 @@ class MockupConenctor:
     def fetch(self, query) -> pd.DataFrame:
         for table in TABLES:
             table_name = table.name.split("/")[-1]
-            if table_name in query:
+            if query in table_name:
                 return pd.read_csv(table)
 
         raise FileNotFoundError(f"Did not find the correct Table name for query: {query}")
