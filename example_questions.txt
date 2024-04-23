@@ -1,0 +1,2 @@
+1. What is the probability that a machine will fail in the near future (within 1 day or 7 days) due to a failure of a certain component?
+2. How does the Machine to type of error distribution looks like?
