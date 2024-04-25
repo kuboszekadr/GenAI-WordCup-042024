@@ -185,7 +185,6 @@ class DataPipeline:
         failures['failure'] = failures['failure'].astype('object')
 
         final_features = main_pipeline_with_date(telemetry, errors, maintenance, machines, date_query)
-        no_cat = pd.get_dummies(final_features.drop(['datetime', 'machineID'], axis=1))
-        return no_cat
+        return final_features
 
 

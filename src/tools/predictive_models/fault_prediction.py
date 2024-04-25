@@ -1,5 +1,5 @@
 from typing import Type, Optional
-
+import numpy as np
 import pandas as pd
 from langchain.callbacks.manager import (
     AsyncCallbackManagerForToolRun,
@@ -16,7 +16,6 @@ import src.constants as consts
 
 
 class ErrorPredictionModel(BaseTool):
-
     name = "error_prediction_model"
     description = """
     Useful for when you want to predict if some machine will likely to fail in the next 24 hours due to a failure of a certain component.
@@ -38,16 +37,21 @@ class ErrorPredictionModel(BaseTool):
     async def _arun(self, date: str, run_manager: Optional[AsyncCallbackManagerForToolRun] = None) -> str:
         data = await self.data_pipeline.forward(date_query=date)
 
-        prediction = self.prediction_model.predict(data.values)
+        machines = data['machineID'].values.tolist()
+        features = pd.get_dummies(data.drop(['datetime', 'machineID'], axis=1))
+
+        prediction = self.prediction_model.predict(features.values)
 
         dict_map = {0: 'no error',
-                    1:'error in comp1',
-                    2:'error in comp2',
+                    1: 'error in comp1',
+                    2: 'error in comp2',
                     3: 'error in comp3',
                     4: 'error in comp4'
                     }
 
-        res = [dict_map[pred] for pred in prediction if pred] # Only errors we care
+        res = [{"error type:": dict_map[pred], "machine_to_fail": machines[index], "date": date_query}
+               for index, pred in enumerate(prediction) if pred
+               ]  # Only errors we care
 
         if res:
             return str(res)
