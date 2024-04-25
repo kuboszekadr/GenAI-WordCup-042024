@@ -1,5 +1,5 @@
 from typing import Type, Optional
-import numpy as np
+
 import pandas as pd
 from langchain.callbacks.manager import (
     AsyncCallbackManagerForToolRun,

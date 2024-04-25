@@ -1,13 +1,5 @@
-import pandas as pd
 
 from src.tools.database.connectors import MockupConenctor
-from src.constants import SENSORS_FIELDS
-
-import pandas as pd
-import numpy as np
-
-
-import os
 import pandas as pd
 import numpy as np
 
@@ -18,7 +10,7 @@ def create_telemetry_features(telemetry):
 
     # Calculate 3-hour means and standard deviations
     for col in fields:
-        resampled = pd.pivot_table(telemetry, index='datetime', columns='machineID', values=col).resample('3H', closed='left', label='right')
+        resampled = pd.pivot_table(telemetry, index='datetime', columns='machineID', values=col).resample('3h', closed='left', label='right')
         mean_3h = resampled.mean().unstack()
         std_3h = resampled.std().unstack()
 
@@ -74,7 +66,7 @@ def create_error_features(errors, telemetry):
         temp.append(pd.pivot_table(error_features,
                                    index='datetime',
                                    columns='machineID',
-                                   values=col).resample('3H',
+                                   values=col).resample('3h',
                                                         closed='left',
                                                         label='right',
                                                         ).first().unstack().rolling(window=24, center=False).sum())
@@ -93,7 +85,7 @@ def calculate_days_since_last_replacement(maint, telemetry):
     for comp in ['comp1', 'comp2', 'comp3', 'comp4']:
         comp_rep.loc[comp_rep[comp] < 1, comp] = None
         comp_rep.loc[~comp_rep[comp].isnull(), comp] = comp_rep.loc[~comp_rep[comp].isnull(), 'datetime']
-        comp_rep[comp] = comp_rep[comp].fillna(method='ffill')
+        comp_rep[comp] = comp_rep[comp].ffill()
         comp_rep[comp] = (comp_rep['datetime'] - comp_rep[comp]) / np.timedelta64(1, 'D')
 
     return comp_rep
@@ -187,4 +179,33 @@ class DataPipeline:
         final_features = main_pipeline_with_date(telemetry, errors, maintenance, machines, date_query)
         return final_features
 
+    async def get_feature_names(self, date_query):
+        telemetry = self.database.fetch("sensors")
+        errors = self.database.fetch("errors")
+        maintenance = self.database.fetch("maintenance")
+        machines = self.database.fetch("machines")
+        failures = self.database.fetch("failures")
+
+        # Prepare telemetry data
+        telemetry['temperature'] = telemetry['rotate']
+        telemetry = telemetry.drop(columns='rotate')
+        telemetry['datetime'] = pd.to_datetime(telemetry['datetime'], format="%Y-%m-%d %H:%M:%S")
+
+        # Prepare error data
+        errors['datetime'] = pd.to_datetime(errors['datetime'], format="%Y-%m-%d %H:%M:%S")
+        errors['errorID'] = errors['errorID'].astype('object')
+
+        # Prepare maintenance data
+        maintenance['datetime'] = pd.to_datetime(maintenance['datetime'], format="%Y-%m-%d %H:%M:%S")
+        maintenance['comp'] = maintenance['comp'].astype('object')
+
+        # Prepare machine data
+        machines['model'] = machines['model'].astype('object')
+
+        # Prepare failures data
+        failures['datetime'] = pd.to_datetime(failures['datetime'], format="%Y-%m-%d %H:%M:%S")
+        failures['failure'] = failures['failure'].astype('object')
+
+        final_features = main_pipeline_with_date(telemetry, errors, maintenance, machines, date_query)
+        return final_features.columns.tolist()
 
