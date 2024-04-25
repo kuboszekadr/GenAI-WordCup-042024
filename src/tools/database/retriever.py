@@ -9,7 +9,7 @@ from langchain.callbacks.manager import (
 
 
 from src.tools.database.base import SQLQuery
-from src.tools.database.connectors import MockupConenctor
+from src.tools.database.connectors import MockConnector
 
 
 class DatabaseRetriever(BaseTool):
@@ -38,4 +38,4 @@ class DatabaseRetriever(BaseTool):
     async def _arun(self,
                     sql_query: str,
                     run_manager: Optional[AsyncCallbackManagerForToolRun] = None) -> str:
-        return str(MockupConenctor().fetch(query=sql_query))
+        return str(MockConnector().fetch(query=sql_query))

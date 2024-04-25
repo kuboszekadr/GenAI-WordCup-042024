@@ -8,7 +8,7 @@ class SQLDatabaseConnector:
     def fetch(self, query):
         pass
 
-class MockupConenctor:
+class MockConnector:
     """
     Contain a mockup of historical data that can be processed and give to the model
     """

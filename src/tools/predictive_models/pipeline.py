@@ -1,5 +1,5 @@
 
-from src.tools.database.connectors import MockupConenctor
+from src.tools.database.connectors import MockConnector
 import pandas as pd
 import numpy as np
 
@@ -146,7 +146,7 @@ def main_pipeline_with_date(telemetry, errors, maintenance, machines, target_dat
 class DataPipeline:
 
     def __init__(self):
-        self.database = MockupConenctor()
+        self.database = MockConnector()
 
     async def forward(self, date_query: str):
 
