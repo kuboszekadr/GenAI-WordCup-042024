@@ -1,5 +1,6 @@
 from typing import Type, Optional
 
+import pandas as pd
 from langchain.agents.tools import BaseTool
 from langchain.pydantic_v1 import BaseModel
 from langchain.callbacks.manager import (
@@ -9,8 +10,8 @@ from langchain.callbacks.manager import (
 
 
 from src.tools.database.base import SQLQuery
-from src.tools.database.connectors import MockConnector
-
+from src.tools.database.connectors import SQLDatabaseConnector, MockConnector
+from src.constants import FEATURES_TABLE_NAME
 
 class DatabaseRetriever(BaseTool):
     name = "database_retriever"
@@ -39,3 +40,11 @@ class DatabaseRetriever(BaseTool):
                     sql_query: str,
                     run_manager: Optional[AsyncCallbackManagerForToolRun] = None) -> str:
         return str(MockConnector().fetch(query=sql_query))
+
+    # async def get_feature_names(self) -> list:
+    #     query = f"""
+    #     select *
+    #     from INFORMATION_SCHEMA.COLUMNS
+    #     where TABLE_NAME={FEATURES_TABLE_NAME}
+    #     """
+    #     return SQLDatabaseConnector().fetch(query=query)

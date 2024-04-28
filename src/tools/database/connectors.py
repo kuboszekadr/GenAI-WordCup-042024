@@ -1,12 +1,26 @@
 import pandas as pd
 from src.constants import TABLES
+from src.config import config
+from databricks import sql
+
 
 class SQLDatabaseConnector:
     """
     Connector to the DBR sql database
     """
+
+    # def __init__(self):
+    #     self.connection = sql.connect(
+    #         server_hostname=config.sql_server.server_hostname,
+    #         http_path=config.sql_server.http_path,
+    #         access_token=config.sql_server.access_token)
+
+    def __del__(self):
+        self.connection.close()
+
     def fetch(self, query):
-        pass
+        return pd.read_sql(query, self.connection)
+
 
 class MockConnector:
     """
@@ -20,4 +34,3 @@ class MockConnector:
                 return pd.read_csv(table)
 
         raise FileNotFoundError(f"Did not find the correct Table name for query: {query}")
-

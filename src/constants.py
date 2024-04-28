@@ -16,6 +16,8 @@ SENSORS_DATA_PATH = DATASET_PATH / "sensors.csv"
 MODELS_PATH = ROOT_PATH / "store" / "models"
 MULTICLASS_XGB_MODEL = MODELS_PATH / "xgboost_multiclass.json"
 
+FINAL_FEATURE_PATH = DATASET_PATH / "final_features.csv"
+
 # -----------------
 # DATABASE SECTION
 # -----------------
@@ -27,4 +29,6 @@ TABLES = [
     MAINTENANCE_DATA_PATH
 ]
 SENSORS_FIELDS = ['volt', 'rotate', 'pressure', 'vibration']  # sensor columns to process
+FEATURES_TABLE_NAME = "final_features"
+
 

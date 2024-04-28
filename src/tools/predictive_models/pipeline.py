@@ -1,8 +1,9 @@
 
+
 from src.tools.database.connectors import MockConnector
 import pandas as pd
 import numpy as np
-
+import src.constants as consts
 
 def create_telemetry_features(telemetry):
     fields = ['volt', 'temperature', 'pressure', 'vibration']
@@ -110,8 +111,6 @@ def filter_data_for_date(dataframe, date, hours=24):
     Returns:
     pd.DataFrame: Filtered DataFrame.
     """
-    dataframe['datetime'] = pd.to_datetime(dataframe['datetime'])
-
     end_date = pd.to_datetime(date)
     start_date = end_date - pd.Timedelta(hours=hours)
     return dataframe[(dataframe['datetime'] >= start_date) & (dataframe['datetime'] <= end_date)]
@@ -129,15 +128,13 @@ def main_pipeline_with_date(telemetry, errors, maintenance, machines, target_dat
     Returns:
     pd.DataFrame: Final features DataFrame for the target date.
     """
-
-    # Filter data for the 24 hours leading up to and including the target date
     telemetry_filtered = filter_data_for_date(telemetry, target_date, 24)
     errors_filtered = filter_data_for_date(errors, target_date, 24)
     maintenance_filtered = filter_data_for_date(maintenance, target_date, 24)
 
     telemetry_feat = create_telemetry_features(telemetry_filtered)
     error_count = create_error_features(errors_filtered, telemetry_filtered)
-    comp_rep = calculate_days_since_last_replacement(maintenance_filtered, telemetry_filtered)
+    comp_rep = calculate_days_since_last_replacement(maintenance_filtered, telemetry_feat)
     final_features = merge_features(telemetry_feat, error_count, comp_rep, machines)
 
     return final_features
@@ -177,9 +174,13 @@ class DataPipeline:
         failures['failure'] = failures['failure'].astype('object')
 
         final_features = main_pipeline_with_date(telemetry, errors, maintenance, machines, date_query)
+        final_features.to_csv(consts.FINAL_FEATURE_PATH)
         return final_features
 
     async def get_feature_names(self, date_query):
+        if consts.FINAL_FEATURE_PATH.exists():
+            pd.read_csv(consts.FINAL_FEATURE_PATH)
+
         telemetry = self.database.fetch("sensors")
         errors = self.database.fetch("errors")
         maintenance = self.database.fetch("maintenance")
@@ -207,5 +208,6 @@ class DataPipeline:
         failures['failure'] = failures['failure'].astype('object')
 
         final_features = main_pipeline_with_date(telemetry, errors, maintenance, machines, date_query)
+
         return final_features.columns.tolist()
 

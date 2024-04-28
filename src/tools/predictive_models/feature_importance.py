@@ -25,7 +25,7 @@ class ErrorPredictionModelFeatureImportance(BaseTool):
     return_direct = True
     prediction_model = XGBClassifier()
     prediction_model.load_model(consts.MULTICLASS_XGB_MODEL)
-    data_pipeline: DataPipeline = DataPipeline()
+    pipeline: DataPipeline = DataPipeline()
 
 
     def _run(self, date: str, run_manager: Optional[CallbackManagerForToolRun] = None) -> str:
@@ -33,7 +33,7 @@ class ErrorPredictionModelFeatureImportance(BaseTool):
         raise NotImplementedError("Use Only Async Run")
 
     async def _arun(self, date: str, run_manager: Optional[AsyncCallbackManagerForToolRun] = None) -> str:
-        feature_names = await self.data_pipeline.get_feature_names(date_query=date)
+        feature_names = await self.pipeline.get_feature_names(date)
 
         importances = self.prediction_model.feature_importances_
 
